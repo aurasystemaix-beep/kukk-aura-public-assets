@@ -1,0 +1,24 @@
+name: M6 immutable JPEG validation
+
+on:
+  push:
+    paths:
+      - ".github/workflows/m6-validate.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate immutable raw JPEG delivery
+        env:
+          ASSET_URL: https://raw.githubusercontent.com/aurasystemaix-beep/kukk-aura-public-assets/b4a27ab55c4898646005b9e4b992184c22d47587/KUKK_Pedih_Bila_Kencing.jpg
+          EXPECTED_SHA256: 8cc882eec8b8e1f6e2ad48ab1d16e347a910a08841bef60fea1c51ff99cecff1
+        run: |
+          set -euo pipefail
+          response="$(curl --fail --silent --show-error --output asset.jpg --write-out '%{http_code} %{num_redirects} %{content_type} %{size_download}' "$ASSET_URL")"
+          test "$response" = "200 0 image/jpeg 1339442"
+          test "$(sha256sum asset.jpg | cut -d ' ' -f1)" = "$EXPECTED_SHA256"
+          echo "M6 immutable JPEG delivery PASS: $response"
