@@ -19,6 +19,9 @@ jobs:
         run: |
           set -euo pipefail
           response="$(curl --fail --silent --show-error --output asset.jpg --write-out '%{http_code} %{num_redirects} %{content_type} %{size_download}' "$ASSET_URL")"
+          actual_sha256="$(sha256sum asset.jpg | cut -d ' ' -f1)"
+          echo "response=$response"
+          echo "sha256=$actual_sha256"
           test "$response" = "200 0 image/jpeg 1339442"
-          test "$(sha256sum asset.jpg | cut -d ' ' -f1)" = "$EXPECTED_SHA256"
-          echo "M6 immutable JPEG delivery PASS: $response"
+          test "$actual_sha256" = "$EXPECTED_SHA256"
+          echo "M6 immutable JPEG delivery PASS"
